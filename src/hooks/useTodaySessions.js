@@ -16,7 +16,10 @@ const GROUPS = [
   'Sick/Vulnerable Flock',
 ]
 
-export function useTodaySessions(date = new Date()) {
+// Accept an optional date string (yyyy-MM-dd). Defaults to today.
+// Using a string prevents new Date() from creating a new object on every render
+// and causing an infinite re-render loop.
+export function useTodaySessions(dateStr = format(new Date(), 'yyyy-MM-dd')) {
   const { setSessions, setGroups, setMovementsForSession, setFieldUpdatesForSession, setLoading, setError } =
     useSessionStore()
 
@@ -24,6 +27,7 @@ export function useTodaySessions(date = new Date()) {
     setLoading(true)
     setError(null)
     try {
+      const date = new Date(dateStr)
       const [groupRecords, existingSessions] = await Promise.all([
         getAllGroups(),
         getSessionsForDate(date),
@@ -42,9 +46,9 @@ export function useTodaySessions(date = new Date()) {
         const created = await Promise.all(
           missingGroups.map((g) =>
             createSession({
-              Date: format(date, 'yyyy-MM-dd'),
+              Date: dateStr,
               Group: [g.id],
-              'Session ID': `DAR-${format(date, 'yyyyMMdd')}-${g.fields['Group Name']?.slice(0, 3).toUpperCase()}`,
+              'Session ID': `DAR-${dateStr.replace(/-/g, '')}-${g.fields['Group Name']?.slice(0, 3).toUpperCase()}`,
               Status: 'Open',
             })
           )
@@ -70,7 +74,7 @@ export function useTodaySessions(date = new Date()) {
     } finally {
       setLoading(false)
     }
-  }, [date])
+  }, [dateStr]) // stable string dep — no infinite loop
 
   useEffect(() => {
     load()
