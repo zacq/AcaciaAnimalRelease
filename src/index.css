@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --color-green-primary: #1a3a2a;
+  --color-green-deep: #0f2218;
+  --color-green-mid: #2d5a3d;
+  --color-green-light: #4a8c5c;
+  --color-amber: #c9971c;
+  --color-amber-light: #f0b429;
+  --color-amber-pale: #fef3c7;
+  --color-white: #ffffff;
+  --color-off-white: #f9f7f2;
+  --color-red-alert: #dc2626;
+  --color-orange-alert: #ea580c;
+  --color-yellow-alert: #d97706;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --font-sans: 'Inter', system-ui, 'Segoe UI', sans-serif;
+  --font-heading: 'Inter', system-ui, 'Segoe UI', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-off-white);
+  color: var(--color-gray-800);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
