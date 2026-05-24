@@ -12,7 +12,7 @@ export default function AppShell({ children }) {
       {bannerAlerts.length > 0 && <AlertBanner alerts={bannerAlerts} />}
       <div className="flex flex-1">
         <NavBar />
-        <main className="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 max-w-7xl mx-auto w-full">
           {children}
         </main>
       </div>

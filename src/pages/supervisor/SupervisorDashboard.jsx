@@ -117,10 +117,10 @@ export default function SupervisorDashboard() {
         {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">{error}</div>}
 
         {/* Section 1 — Session Info */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
           <h2 className="text-base font-semibold text-green-primary mb-4 flex items-center gap-2">
             <span className="w-6 h-6 bg-green-primary text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-            Session Information
+            Session information
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -146,10 +146,10 @@ export default function SupervisorDashboard() {
         </div>
 
         {/* Section 2 — Personnel */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
           <h2 className="text-base font-semibold text-green-primary mb-4 flex items-center gap-2">
             <span className="w-6 h-6 bg-green-primary text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-            Personnel on Duty
+            Personnel on duty
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -196,11 +196,13 @@ export default function SupervisorDashboard() {
 
         {/* Section 3 — Group Tally (AM) */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <div className="px-4 md:px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <span className="w-6 h-6 bg-green-primary text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
             <h2 className="text-base font-semibold text-green-primary">Group Tally — AM</h2>
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
@@ -231,6 +233,26 @@ export default function SupervisorDashboard() {
                 </tr>
               </tfoot>
             </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden">
+            <div className="p-3 space-y-3">
+              {sortedSessions.map((sess, i) => (
+                <GroupTallyRow
+                  key={sess.id}
+                  session={sess}
+                  groupName={GROUP_ORDER[i]}
+                  staffOptions={herdsmen}
+                  onChange={handleRowChange}
+                  variant="card"
+                />
+              ))}
+            </div>
+            <div className="border-t-2 border-green-200 bg-green-50 px-4 py-3 flex items-center justify-between">
+              <span className="text-sm font-semibold text-green-primary">Grand Total (AM)</span>
+              <span className="text-2xl font-bold text-green-primary">{totalAM}</span>
+            </div>
           </div>
         </div>
 

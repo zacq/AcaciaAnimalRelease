@@ -24,8 +24,8 @@
   --color-gray-800: #1f2937;
   --color-gray-900: #111827;
 
-  --font-sans: 'Inter', system-ui, 'Segoe UI', sans-serif;
-  --font-heading: 'Inter', system-ui, 'Segoe UI', sans-serif;
+  --font-sans: 'Outfit', system-ui, 'Segoe UI', sans-serif;
+  --font-heading: 'Outfit', system-ui, 'Segoe UI', sans-serif;
 }
 
 *, *::before, *::after {
@@ -44,6 +44,14 @@ body {
   min-height: 100svh;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 input, select, textarea {
   font-family: inherit;
+}
+
+.tabular-nums, input[type="number"] {
+  font-variant-numeric: tabular-nums;
 }
