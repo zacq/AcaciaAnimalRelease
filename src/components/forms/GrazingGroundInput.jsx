@@ -13,7 +13,7 @@ export default function GrazingGroundInput({ value, onChange, locked }) {
 
   useEffect(() => {
     if (!value) { setFiltered([]); return }
-    setFiltered(suggestions.filter((s) => s.toLowerCase().includes(value.toLowerCase())).slice(0, 6))
+    setFiltered(suggestions.filter((s) => s && s.toLowerCase().includes(value.toLowerCase())).slice(0, 6))
   }, [value, suggestions])
 
   useEffect(() => {

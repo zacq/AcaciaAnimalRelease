@@ -9,7 +9,7 @@ export async function getGrazingGroundHistory() {
       pageSize: 50,
     },
   })
-  return res.data.records.map((r) => r.fields['Name'])
+  return res.data.records.map((r) => r.fields['Name']).filter(Boolean)
 }
 
 export async function upsertGrazingGround(name) {
