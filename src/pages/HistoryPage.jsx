@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, parseISO } from 'date-fns'
+import { useState, useEffect } from 'react'
+import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns'
 import { getSessionsForDateRange } from '../api/sessionsService'
+import { getAllGroups } from '../api/groupsService'
 import AppShell from '../components/layout/AppShell'
 
 const GROUP_ORDER = [
@@ -22,16 +23,26 @@ export default function HistoryPage() {
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [groups, setGroups] = useState([])
 
   // Weekly view state
   const [weekDate, setWeekDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [weeklySessions, setWeeklySessions] = useState([])
   const [weeklyLoading, setWeeklyLoading] = useState(false)
 
+  useEffect(() => {
+    getAllGroups().then(setGroups).catch(console.error)
+  }, [])
+
+  function resolveGroupName(sess) {
+    const g = groups.find((gr) => gr.id === sess.fields['Group']?.[0])
+    return g?.fields['Group Name'] || '—'
+  }
+
   async function handleSearch() {
     setLoading(true)
     try {
-      const results = await getSessionsForDateRange(new Date(fromDate), new Date(toDate))
+      const results = await getSessionsForDateRange(new Date(`${fromDate}T00:00:00`), new Date(`${toDate}T00:00:00`))
       setSessions(results)
       setSearched(true)
     } catch (err) {
@@ -139,7 +150,7 @@ export default function HistoryPage() {
                           return (
                             <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50">
                               <td className="px-3 py-3 font-medium">{s.fields['Date']}</td>
-                              <td className="px-3 py-3">{s.fields['Group Name'] || '—'}</td>
+                              <td className="px-3 py-3">{resolveGroupName(s)}</td>
                               <td className="px-3 py-3 text-center">{s.fields['AM Count'] ?? '—'}</td>
                               <td className="px-3 py-3 text-center">{s.fields['PM Count'] ?? '—'}</td>
                               <td className="px-3 py-3 text-center">
@@ -201,12 +212,12 @@ export default function HistoryPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {GROUP_ORDER.map((groupName) => (
-                        <tr key={groupName} className="border-t border-gray-50">
-                          <td className="px-3 py-3 font-medium text-gray-800 whitespace-nowrap sticky left-0 bg-white">{groupName}</td>
+                      {GROUP_ORDER.map((grpName) => (
+                        <tr key={grpName} className="border-t border-gray-50">
+                          <td className="px-3 py-3 font-medium text-gray-800 whitespace-nowrap sticky left-0 bg-white">{grpName}</td>
                           {weekDays.map((d) => {
                             const daySessions = sessionsForDay(d)
-                            const sess = daySessions.find((s) => (s.fields['Group Name'] || '').includes(groupName.split(' ')[0]))
+                            const sess = daySessions.find((s) => resolveGroupName(s) === grpName)
                             const variance = sess && sess.fields['PM Count'] != null && sess.fields['AM Count'] != null
                               ? sess.fields['PM Count'] - sess.fields['AM Count'] : null
                             return (
