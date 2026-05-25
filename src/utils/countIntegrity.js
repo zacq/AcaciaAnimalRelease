@@ -43,16 +43,17 @@ export function validatePMCount(session, movements) {
   return { variance, discrepancy, expectedPM }
 }
 
-export function computeFarmTotals(sessions, movementsMap) {
+export function computeFarmTotals(sessions, movementsMap, groups = []) {
   return sessions.map((sess) => {
     const moves = movementsMap[sess.id] || []
     const { amCount, movedOut, movedIn, expectedPM } = computeSessionTotals(sess, moves)
     const pmCount = sess.fields['PM Count'] ?? null
     const variance = pmCount != null ? pmCount - amCount : null
     const ok = pmCount == null ? null : pmCount >= amCount
+    const groupRecord = groups.find((g) => g.id === sess.fields['Group']?.[0])
     return {
       sessionId: sess.id,
-      groupName: sess.fields['Group Name'] || sess.fields['Group']?.[0] || '',
+      groupName: groupRecord?.fields['Group Name'] || sess.fields['Group Name'] || '',
       amCount,
       movedOut,
       movedIn,

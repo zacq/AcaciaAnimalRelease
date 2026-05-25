@@ -33,7 +33,7 @@ export default function PMSessionPage() {
     return sessions.find((s) => s.fields['Group']?.[0] === group?.id)
   }).filter(Boolean)
 
-  const tallyRows = computeFarmTotals(sortedSessions, movements)
+  const tallyRows = computeFarmTotals(sortedSessions, movements, groups)
   const grand = farmGrandTotal(tallyRows)
   const hasDiscrepancy = tallyRows.some((r) => r.variance !== null && r.variance < 0)
   const allPMEntered = tallyRows.every((r) => r.pmCount != null)
