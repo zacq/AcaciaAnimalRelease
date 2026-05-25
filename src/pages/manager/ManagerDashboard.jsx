@@ -82,15 +82,15 @@ export default function ManagerDashboard() {
             <h1 className="text-2xl font-bold text-green-primary">Farm Overview</h1>
             <p className="text-gray-500 text-sm mt-1">{format(new Date(), 'EEEE, d MMMM yyyy')} · Read-only view</p>
           </div>
-          <div className="flex gap-3">
-            <div className="bg-green-primary text-white rounded-xl px-4 py-3 text-center min-w-[90px]">
+          <div className="flex gap-2">
+            <div className="bg-green-primary text-white rounded-xl px-3 py-2.5 text-center min-w-[72px]">
               <p className="text-xs text-green-light">Total AM</p>
-              <p className="text-3xl font-bold">{totalAM}</p>
+              <p className="text-2xl sm:text-3xl font-bold">{totalAM}</p>
             </div>
             {totalPM != null && (
-              <div className={`rounded-xl px-4 py-3 text-center min-w-[90px] border-2 ${totalPM < totalAM ? 'border-red-300 bg-red-50' : 'border-green-300 bg-green-50'}`}>
+              <div className={`rounded-xl px-3 py-2.5 text-center min-w-[72px] border-2 ${totalPM < totalAM ? 'border-red-300 bg-red-50' : 'border-green-300 bg-green-50'}`}>
                 <p className="text-xs text-gray-500">Total PM</p>
-                <p className={`text-3xl font-bold ${totalPM < totalAM ? 'text-red-600' : 'text-green-primary'}`}>{totalPM}</p>
+                <p className={`text-2xl sm:text-3xl font-bold ${totalPM < totalAM ? 'text-red-600' : 'text-green-primary'}`}>{totalPM}</p>
               </div>
             )}
           </div>
@@ -113,67 +113,68 @@ export default function ManagerDashboard() {
               <div key={sess.id} className={`rounded-2xl border-2 ${VARIANCE_COLOUR(variance)} overflow-hidden`}>
 
                 {/* Card header */}
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-bold text-gray-900">{name}</h3>
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-1 gap-2">
+                    <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight">{name}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
                       sess.fields['Status'] === 'Complete' ? 'bg-green-100 text-green-700' :
                       sess.fields['Status'] === 'Discrepancy' ? 'bg-red-100 text-red-700' :
                       'bg-gray-100 text-gray-600'
                     }`}>{sess.fields['Status'] || 'Open'}</span>
                   </div>
 
-                  {/* Grazing ground + departure time */}
-                  <p className="text-xs text-gray-500 mb-1">
+                  {/* Grazing ground + times — truncated on small screens */}
+                  <p className="text-xs text-gray-500 mb-1 truncate">
                     {sess.fields['Grazing Ground'] || '—'}
                     {sess.fields['AM Departure Time'] ? ` · out ${sess.fields['AM Departure Time']}` : ''}
                     {sess.fields['PM Return Time']    ? ` · in ${sess.fields['PM Return Time']}`    : ''}
                   </p>
 
-                  {/* Herdsman */}
+                  {/* Herdsman — name truncated, phone as icon-only on xs */}
                   {herdsman && (
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 flex-shrink-0">
-                        <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+                    <div className="flex items-center gap-1.5 mb-3 min-w-0">
+                      <span className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 flex-shrink-0">
+                        <svg viewBox="0 0 16 16" fill="currentColor" className="w-2.5 h-2.5">
                           <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 6a5 5 0 0 1 10 0H3z"/>
                         </svg>
                       </span>
-                      <span className="text-xs text-gray-700">{herdsman.fields['Name']}</span>
+                      <span className="text-xs text-gray-700 truncate min-w-0 flex-1">{herdsman.fields['Name']}</span>
                       {herdsman.fields['Phone'] && (
                         <a
                           href={`tel:${herdsman.fields['Phone']}`}
-                          className="ml-auto text-xs text-green-primary font-medium flex items-center gap-1 hover:underline"
+                          className="flex-shrink-0 flex items-center gap-1 text-xs text-green-primary font-medium hover:underline"
                         >
                           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
                             <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/>
                           </svg>
-                          {herdsman.fields['Phone']}
+                          <span className="hidden sm:inline">{herdsman.fields['Phone']}</span>
+                          <span className="sm:hidden">Call</span>
                         </a>
                       )}
                     </div>
                   )}
 
                   {/* AM / PM / Variance */}
-                  <div className="flex gap-2 mb-3">
-                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                  <div className="flex gap-1.5 mb-3">
+                    <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-gray-100">
                       <p className="text-xs text-gray-500">AM</p>
-                      <p className="font-bold text-xl">{amCount}</p>
+                      <p className="font-bold text-lg sm:text-xl">{amCount}</p>
                     </div>
-                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                    <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-gray-100">
                       <p className="text-xs text-gray-500">PM</p>
-                      <p className={`font-bold text-xl ${pmCount == null ? 'text-gray-300' : ''}`}>{pmCount ?? '—'}</p>
+                      <p className={`font-bold text-lg sm:text-xl ${pmCount == null ? 'text-gray-300' : ''}`}>{pmCount ?? '—'}</p>
                     </div>
                     {variance != null && (
-                      <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                      <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-gray-100">
                         <p className="text-xs text-gray-500">VAR</p>
-                        <p className={`font-bold text-xl ${variance < 0 ? 'text-red-600' : variance === 0 ? 'text-green-600' : 'text-amber'}`}>
+                        <p className={`font-bold text-lg sm:text-xl ${variance < 0 ? 'text-red-600' : variance === 0 ? 'text-green-600' : 'text-amber'}`}>
                           {variance > 0 ? '+' : ''}{variance}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  {/* Footer row: movement count + expand toggle */}
+                  {/* Footer row */}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-400">
                       {sessMovements.length > 0
@@ -184,7 +185,7 @@ export default function ManagerDashboard() {
                       onClick={() => setExpandedId(isExpanded ? null : sess.id)}
                       className="text-xs text-green-primary font-medium flex items-center gap-1 hover:underline"
                     >
-                      {isExpanded ? 'Hide details' : 'View details'}
+                      {isExpanded ? 'Hide' : 'Details'}
                       <svg viewBox="0 0 16 16" fill="currentColor" className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
                         <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                       </svg>
@@ -192,9 +193,9 @@ export default function ManagerDashboard() {
                   </div>
                 </div>
 
-                {/* Expanded panel */}
+                {/* Expanded panel — scrollable, capped at 55 vh */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 bg-gray-50 p-4 space-y-4">
+                  <div className="border-t border-gray-100 bg-gray-50 p-4 space-y-4 max-h-[55vh] overflow-y-auto overscroll-contain">
 
                     {/* Herdsman field updates */}
                     <div>

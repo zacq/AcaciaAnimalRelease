@@ -208,13 +208,13 @@ export default function FieldViewPage() {
             ) : (
               <>
                 {/* Hero card */}
-                <div className="bg-green-primary text-white rounded-2xl p-6">
-                  <div className="flex items-start justify-between mb-1">
-                    <div>
+                <div className="bg-green-primary text-white rounded-2xl p-4 sm:p-6">
+                  <div className="flex items-start justify-between mb-1 gap-2">
+                    <div className="min-w-0">
                       <p className="text-green-light text-xs uppercase tracking-wide">My Group</p>
-                      <h1 className="text-2xl font-bold mt-0.5">{myGroup?.fields['Group Name'] || 'Group'}</h1>
+                      <h1 className="text-xl sm:text-2xl font-bold mt-0.5 truncate">{myGroup?.fields['Group Name'] || 'Group'}</h1>
                     </div>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-semibold mt-1 ${
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 mt-1 ${
                       mySession.fields['Status'] === 'Complete'    ? 'bg-green-700 text-white' :
                       mySession.fields['Status'] === 'Discrepancy' ? 'bg-red-500 text-white' :
                       'bg-white/20 text-white'
@@ -223,11 +223,11 @@ export default function FieldViewPage() {
                     </span>
                   </div>
 
-                  <p className="text-green-light text-sm mt-2">
+                  <p className="text-green-light text-xs sm:text-sm mt-1.5">
                     {format(new Date(), 'EEEE, d MMMM yyyy')}
                   </p>
 
-                  <div className="text-green-light text-xs mt-1 space-x-3">
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-green-light text-xs mt-1">
                     {mySession.fields['Grazing Ground'] && (
                       <span>Ground: <span className="text-white font-medium">{mySession.fields['Grazing Ground']}</span></span>
                     )}
@@ -235,22 +235,22 @@ export default function FieldViewPage() {
                       <span>Out: <span className="text-white font-medium">{mySession.fields['AM Departure Time']}</span></span>
                     )}
                     {mySession.fields['Weather'] && (
-                      <span>{mySession.fields['Weather']}</span>
+                      <span className="truncate">{mySession.fields['Weather']}</span>
                     )}
                   </div>
 
                   {/* Stat boxes */}
-                  <div className="mt-4 grid grid-cols-3 gap-3">
-                    <div className="bg-green-deep rounded-xl p-3 text-center">
-                      <p className="text-green-light text-xs mb-1">AM Count</p>
-                      <p className="text-2xl font-bold">{amCount ?? '—'}</p>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <div className="bg-green-deep rounded-xl p-2 sm:p-3 text-center">
+                      <p className="text-green-light text-xs mb-0.5">AM</p>
+                      <p className="text-xl sm:text-2xl font-bold">{amCount ?? '—'}</p>
                     </div>
-                    <div className="bg-green-deep rounded-xl p-3 text-center">
-                      <p className="text-green-light text-xs mb-1">Field Count</p>
-                      <p className="text-2xl font-bold">{latestCount ?? '—'}</p>
+                    <div className="bg-green-deep rounded-xl p-2 sm:p-3 text-center">
+                      <p className="text-green-light text-xs mb-0.5">Field</p>
+                      <p className="text-xl sm:text-2xl font-bold">{latestCount ?? '—'}</p>
                     </div>
-                    <div className="bg-green-deep rounded-xl p-3 text-center">
-                      <p className="text-green-light text-xs mb-1">Change</p>
+                    <div className="bg-green-deep rounded-xl p-2 sm:p-3 text-center">
+                      <p className="text-green-light text-xs mb-0.5">Change</p>
                       <PctBadge am={amCount} current={latestCount} />
                     </div>
                   </div>
@@ -413,11 +413,11 @@ export default function FieldViewPage() {
                     isMe ? 'border-l-4 border-l-green-primary border-gray-100' : 'border-gray-100'
                   }`}
                 >
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
                         {/* Avatar */}
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold ${
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold ${
                           isMe ? 'bg-green-primary text-white' : 'bg-gray-100 text-gray-600'
                         }`}>
                           {herdsman ? herdsman.fields['Name'].charAt(0).toUpperCase() : '?'}
@@ -425,7 +425,7 @@ export default function FieldViewPage() {
                         <div className="min-w-0">
                           <p className={`font-semibold text-sm truncate ${isMe ? 'text-green-primary' : 'text-gray-800'}`}>
                             {herdsman ? herdsman.fields['Name'] : <span className="italic text-gray-400">Unassigned</span>}
-                            {isMe && <span className="ml-1.5 text-xs font-normal text-green-mid">(you)</span>}
+                            {isMe && <span className="ml-1 text-xs font-normal text-green-mid">(you)</span>}
                           </p>
                           <p className="text-xs text-gray-500 truncate">{name}</p>
                         </div>
@@ -433,9 +433,9 @@ export default function FieldViewPage() {
 
                       <div className="flex flex-col items-end gap-1 flex-shrink-0">
                         {hasAlert && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-medium">Alert</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-medium">Alert</span>
                         )}
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                           sess.fields['Status'] === 'Complete'    ? 'bg-green-100 text-green-700' :
                           sess.fields['Status'] === 'Discrepancy' ? 'bg-red-100 text-red-700' :
                           'bg-gray-100 text-gray-500'
@@ -446,20 +446,20 @@ export default function FieldViewPage() {
                     </div>
 
                     {/* Stats row */}
-                    <div className="mt-3 flex gap-2 text-xs">
-                      <div className="flex-1 bg-gray-50 rounded-lg px-2.5 py-2 text-center">
+                    <div className="mt-2.5 flex gap-1.5 text-xs">
+                      <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center">
                         <p className="text-gray-400">AM</p>
-                        <p className="font-bold text-gray-800 text-base">{amCt}</p>
+                        <p className="font-bold text-gray-800 text-sm sm:text-base">{amCt}</p>
                       </div>
-                      <div className="flex-1 bg-gray-50 rounded-lg px-2.5 py-2 text-center">
+                      <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center">
                         <p className="text-gray-400">Field</p>
-                        <p className={`font-bold text-base ${latestCt == null ? 'text-gray-300' : 'text-gray-800'}`}>
+                        <p className={`font-bold text-sm sm:text-base ${latestCt == null ? 'text-gray-300' : 'text-gray-800'}`}>
                           {latestCt ?? '—'}
                         </p>
                       </div>
-                      <div className="flex-1 bg-gray-50 rounded-lg px-2.5 py-2 text-center">
+                      <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center">
                         <p className="text-gray-400">Δ</p>
-                        <p className={`font-bold text-base ${
+                        <p className={`font-bold text-sm sm:text-base ${
                           sessDelta == null ? 'text-gray-300' :
                           sessDelta < 0 ? 'text-red-500' :
                           sessDelta === 0 ? 'text-green-600' : 'text-amber'
@@ -470,11 +470,11 @@ export default function FieldViewPage() {
                     </div>
 
                     {/* Ground + last update */}
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
-                      <span>{sess.fields['Grazing Ground'] || '—'}</span>
+                    <div className="mt-2 flex items-center justify-between text-xs text-gray-400 gap-2">
+                      <span className="truncate">{sess.fields['Grazing Ground'] || '—'}</span>
                       {latest
-                        ? <span>Last update {format(new Date(latest.fields['Timestamp']), 'HH:mm')}</span>
-                        : <span className="italic">No update yet</span>
+                        ? <span className="flex-shrink-0">Updated {format(new Date(latest.fields['Timestamp']), 'HH:mm')}</span>
+                        : <span className="italic flex-shrink-0">No update yet</span>
                       }
                     </div>
                   </div>

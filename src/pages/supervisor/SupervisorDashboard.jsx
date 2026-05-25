@@ -107,9 +107,9 @@ export default function SupervisorDashboard() {
             <p className="text-gray-500 text-sm mt-1">{today} · Form DAR-{format(new Date(), 'yyyyMMdd')}</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-green-primary text-white rounded-xl px-5 py-3 text-center">
-              <p className="text-xs text-green-light">Total Animals Out (AM)</p>
-              <p className="text-3xl font-bold">{totalAM}</p>
+            <div className="bg-green-primary text-white rounded-xl px-4 py-2.5 text-center">
+              <p className="text-xs text-green-light">Total AM</p>
+              <p className="text-2xl sm:text-3xl font-bold">{totalAM}</p>
             </div>
           </div>
         </div>

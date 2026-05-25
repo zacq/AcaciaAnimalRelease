@@ -105,14 +105,14 @@ export default function LiveMapPage() {
               <div key={sess.id} className={`rounded-2xl border-2 overflow-hidden transition-colors ${varianceColour(variance)}`}>
 
                 {/* Card body */}
-                <div className="p-5">
+                <div className="p-4">
                   {/* Group name + badges */}
-                  <div className="flex items-start justify-between mb-1">
-                    <div>
-                      <h3 className="font-bold text-gray-900">{groupName}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">{sess.fields['Grazing Ground'] || 'Ground not set'}</p>
+                  <div className="flex items-start justify-between mb-1 gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">{groupName}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5 truncate">{sess.fields['Grazing Ground'] || 'Ground not set'}</p>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       {variance != null && (
                         <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                           variance < 0 ? 'bg-red-600 text-white' :
@@ -133,20 +133,20 @@ export default function LiveMapPage() {
                   </div>
 
                   {/* AM/Field/PM counts */}
-                  <div className="flex gap-2 my-3">
-                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                  <div className="flex gap-1.5 my-2.5">
+                    <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-gray-100">
                       <p className="text-xs text-gray-500">AM</p>
-                      <p className="font-bold text-lg text-gray-900">{amCount}</p>
+                      <p className="font-bold text-base sm:text-lg text-gray-900">{amCount}</p>
                     </div>
                     {latest && (
-                      <div className="flex-1 bg-white rounded-lg p-2 text-center border border-amber">
+                      <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-amber">
                         <p className="text-xs text-amber">Field</p>
-                        <p className="font-bold text-lg text-gray-900">{latest.fields['Current Count in Field']}</p>
+                        <p className="font-bold text-base sm:text-lg text-gray-900">{latest.fields['Current Count in Field']}</p>
                       </div>
                     )}
-                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                    <div className="flex-1 bg-white rounded-lg p-1.5 text-center border border-gray-100">
                       <p className="text-xs text-gray-500">PM</p>
-                      <p className={`font-bold text-lg ${pmCount == null ? 'text-gray-300' : 'text-gray-900'}`}>{pmCount ?? '—'}</p>
+                      <p className={`font-bold text-base sm:text-lg ${pmCount == null ? 'text-gray-300' : 'text-gray-900'}`}>{pmCount ?? '—'}</p>
                     </div>
                   </div>
 
@@ -154,9 +154,9 @@ export default function LiveMapPage() {
                   {urgent.length > 0 && (
                     <div className="mb-2 space-y-1">
                       {urgent.map((u) => (
-                        <div key={u.id} className="flex items-start justify-between bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-xs">
-                          <p className="text-orange-700 font-medium">Urgent: {u.fields['Issues Reported'] || 'Field report'}</p>
-                          <button onClick={() => handleAcknowledge(u.id)} className="text-orange-500 hover:text-orange-700 ml-2 flex-shrink-0 font-semibold">ACK</button>
+                        <div key={u.id} className="flex items-start justify-between bg-orange-50 border border-orange-200 rounded-lg px-2.5 py-1.5 text-xs">
+                          <p className="text-orange-700 font-medium truncate pr-2">Urgent: {u.fields['Issues Reported'] || 'Field report'}</p>
+                          <button onClick={() => handleAcknowledge(u.id)} className="text-orange-500 hover:text-orange-700 flex-shrink-0 font-semibold">ACK</button>
                         </div>
                       ))}
                     </div>
@@ -188,21 +188,21 @@ export default function LiveMapPage() {
                 </div>
 
                 {/* Herdsman contact strip */}
-                <div className={`border-t px-4 py-3 ${herdsman ? 'bg-green-primary' : 'bg-gray-50 border-gray-100'}`}>
+                <div className={`border-t px-3 py-2.5 ${herdsman ? 'bg-green-primary' : 'bg-gray-50 border-gray-100'}`}>
                   {herdsman ? (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {/* Avatar */}
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                        <svg viewBox="0 0 20 20" fill="white" className="w-4 h-4">
+                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                        <svg viewBox="0 0 20 20" fill="white" className="w-3.5 h-3.5">
                           <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7 9a7 7 0 1 1 14 0H3z"/>
                         </svg>
                       </div>
 
                       {/* Name + number */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-white font-semibold text-sm leading-tight truncate">{herdsman.fields['Name']}</p>
+                        <p className="text-white font-semibold text-xs leading-tight truncate">{herdsman.fields['Name']}</p>
                         {phone
-                          ? <p className="text-green-light text-xs">{phone}</p>
+                          ? <p className="text-green-light text-xs truncate">{phone}</p>
                           : <p className="text-green-light/60 text-xs italic">No phone on record</p>
                         }
                       </div>
@@ -212,7 +212,7 @@ export default function LiveMapPage() {
                         <a
                           href={`tel:${phone}`}
                           title={`Call ${herdsman.fields['Name']}`}
-                          className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-white text-green-primary text-xs font-bold hover:bg-green-light transition-colors flex-shrink-0"
+                          className="flex items-center gap-1 px-2.5 h-7 rounded-full bg-white text-green-primary text-xs font-bold hover:bg-green-light transition-colors flex-shrink-0"
                         >
                           <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
                             <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/>
