@@ -27,10 +27,9 @@ export function useTodaySessions(dateStr = format(new Date(), 'yyyy-MM-dd')) {
     setLoading(true)
     setError(null)
     try {
-      const date = new Date(dateStr)
       const [groupRecords, existingSessions] = await Promise.all([
         getAllGroups(),
-        getSessionsForDate(date),
+        getSessionsForDate(dateStr),
       ])
       setGroups(groupRecords)
 
@@ -57,8 +56,9 @@ export function useTodaySessions(dateStr = format(new Date(), 'yyyy-MM-dd')) {
       }
 
       setSessions(sessions)
+      setLoading(false)
 
-      // Load movements and field updates for each session in parallel
+      // Load movements and field updates in background — form is already usable
       await Promise.all(
         sessions.map(async (sess) => {
           const [moves, updates] = await Promise.all([
@@ -71,7 +71,6 @@ export function useTodaySessions(dateStr = format(new Date(), 'yyyy-MM-dd')) {
       )
     } catch (err) {
       setError(err.message || 'Failed to load sessions')
-    } finally {
       setLoading(false)
     }
   }, [dateStr]) // stable string dep — no infinite loop

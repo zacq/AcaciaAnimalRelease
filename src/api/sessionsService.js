@@ -3,8 +3,7 @@ import { format } from 'date-fns'
 
 const TABLE = 'Daily Sessions'
 
-export async function getSessionsForDate(date) {
-  const dateStr = format(date, 'yyyy-MM-dd')
+export async function getSessionsForDate(dateStr) {
   const res = await client.get(`/${TABLE}`, {
     params: {
       filterByFormula: `IS_SAME({Date}, "${dateStr}", "day")`,
