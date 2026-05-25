@@ -44,14 +44,11 @@ const GROUP_ORDER = [
   'Paddock - Mothers', 'Paddock - Kids', 'Paddock - Males', 'Sick/Vulnerable Flock',
 ]
 
-const GRAZING = {
-  'Annex Farm':          'North Field',
-  'Main Farm':           'South Pasture',
-  'Horsefield':          'East Ridge',
-  'Paddock - Mothers':   'Mothers Paddock',
-  'Paddock - Kids':      'Kids Paddock',
-  'Paddock - Males':     'Males Paddock',
-  'Sick/Vulnerable Flock': 'Enclosure (N/A)',
+const GRAZING_GROUNDS = ['North Field', 'South Pasture', 'East Ridge', 'Northern Ranch']
+
+function grazingGround(groupIndex, dayIndex) {
+  if (GROUP_ORDER[groupIndex] === 'Sick/Vulnerable Flock') return 'Enclosure (N/A)'
+  return GRAZING_GROUNDS[(groupIndex + dayIndex) % GRAZING_GROUNDS.length]
 }
 
 // Herdsman index (0-4 → h1-h5) per group per day
@@ -167,7 +164,7 @@ async function main() {
         Status:            'Open',
         'AM Count':        counts[name],
         'AM Departure Time': AM_TIMES[d],
-        'Grazing Ground':  GRAZING[name],
+        'Grazing Ground':  grazingGround(g, d),
         Herdsman:          [HERDSMEN[ROTATION[d][g]]],
         'Counting Supervisor': [STAFF.supervisor],
         Weather:           weather,

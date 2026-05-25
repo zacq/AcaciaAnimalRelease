@@ -43,14 +43,12 @@ const GROUP_ORDER = [
   'Paddock - Mothers', 'Paddock - Kids', 'Paddock - Males', 'Sick/Vulnerable Flock',
 ]
 
-const GRAZING = {
-  'Annex Farm':             'North Field',
-  'Main Farm':              'South Pasture',
-  'Horsefield':             'East Ridge',
-  'Paddock - Mothers':      'Mothers Paddock',
-  'Paddock - Kids':         'Kids Paddock',
-  'Paddock - Males':        'Males Paddock',
-  'Sick/Vulnerable Flock':  'Enclosure (N/A)',
+const GRAZING_GROUNDS = ['North Field', 'South Pasture', 'East Ridge', 'Northern Ranch']
+const DAY_INDEX = 7  // May 25 is 7 days after May 18 (day 0)
+
+function grazingGround(groupIndex) {
+  if (GROUP_ORDER[groupIndex] === 'Sick/Vulnerable Flock') return 'Enclosure (N/A)'
+  return GRAZING_GROUNDS[(groupIndex + DAY_INDEX) % GRAZING_GROUNDS.length]
 }
 
 // AM counts = end-of-day May 24
@@ -107,7 +105,7 @@ async function main() {
         'Session ID':            `DAR-${DATE.replace(/-/g,'')}-${name.slice(0,3).toUpperCase()}${i}`,
         'AM Count':              AM_COUNTS[name],
         'AM Departure Time':     AM_TIME,
-        'Grazing Ground':        GRAZING[name],
+        'Grazing Ground':        grazingGround(i),
         Herdsman:                [HERDSMEN[ROTATION[i]]],
         'Counting Supervisor':   [SUPERVISOR],
         Weather:                 WEATHER,
