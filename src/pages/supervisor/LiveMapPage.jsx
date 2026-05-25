@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { useSessionStore } from '../../store/sessionStore'
 import { useTodaySessions } from '../../hooks/useTodaySessions'
 import { getUpdatesForSession, acknowledgeUpdate } from '../../api/fieldUpdatesService'
+import { getAllStaff } from '../../api/staffService'
 import { useAlertStore } from '../../store/alertStore'
 import AppShell from '../../components/layout/AppShell'
 
@@ -11,44 +12,45 @@ const GROUP_ORDER = [
   'Paddock - Mothers', 'Paddock - Kids', 'Paddock - Males', 'Sick/Vulnerable Flock',
 ]
 
-const POLL_INTERVAL = 2 * 60 * 1000 // 2 minutes
+const POLL_INTERVAL = 2 * 60 * 1000
 
-function getVarianceColour(variance) {
-  if (variance == null) return 'border-gray-200 bg-white'
-  if (variance < 0) return 'border-red-400 bg-red-50'
-  if (variance === 0) return 'border-green-400 bg-green-50'
+function varianceColour(v) {
+  if (v == null) return 'border-gray-200 bg-white'
+  if (v < 0) return 'border-red-400 bg-red-50'
+  if (v === 0) return 'border-green-400 bg-green-50'
   return 'border-amber bg-amber-pale'
 }
+
 
 export default function LiveMapPage() {
   const { sessions, groups, fieldUpdates, setFieldUpdatesForSession, loading } = useSessionStore()
   const { reload } = useTodaySessions()
   const addAlert = useAlertStore((s) => s.addAlert)
   const [lastRefresh, setLastRefresh] = useState(new Date())
+  const [staff, setStaff] = useState([])
+
+  useEffect(() => { getAllStaff().then(setStaff).catch(console.error) }, [])
 
   const refresh = useCallback(async () => {
     await reload()
-    // Reload field updates for all sessions
     for (const sess of sessions) {
       try {
         const updates = await getUpdatesForSession(sess.id)
         setFieldUpdatesForSession(sess.id, updates)
-
-        // Fire alerts for urgent updates
-        updates.filter((u) => u.fields['Alert Level'] === 'Urgent' && !u.fields['Acknowledged By Supervisor'])
+        updates
+          .filter((u) => u.fields['Alert Level'] === 'Urgent' && !u.fields['Acknowledged By Supervisor'])
           .forEach((u) => {
-            const groupName = groups.find((g) => g.id === sess.fields['Group']?.[0])?.fields['Group Name'] || ''
-            addAlert(`Urgent field report — ${groupName}: ${u.fields['Issues Reported'] || 'No details'}`, 'orange')
+            const gName = groups.find((g) => g.id === sess.fields['Group']?.[0])?.fields['Group Name'] || ''
+            addAlert(`Urgent field report — ${gName}: ${u.fields['Issues Reported'] || 'No details'}`, 'orange')
           })
       } catch (_) {}
     }
     setLastRefresh(new Date())
   }, [sessions, groups])
 
-  // Auto-poll
   useEffect(() => {
-    const interval = setInterval(refresh, POLL_INTERVAL)
-    return () => clearInterval(interval)
+    const id = setInterval(refresh, POLL_INTERVAL)
+    return () => clearInterval(id)
   }, [refresh])
 
   const sortedSessions = GROUP_ORDER.map((name) => {
@@ -66,10 +68,14 @@ export default function LiveMapPage() {
   return (
     <AppShell>
       <div className="space-y-5">
+
+        {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-green-primary">Live Farm Map</h1>
-            <p className="text-gray-400 text-xs mt-0.5">Last updated: {format(lastRefresh, 'HH:mm:ss')} · Auto-refreshes every 2 min</p>
+            <p className="text-gray-400 text-xs mt-0.5">
+              Last updated: {format(lastRefresh, 'HH:mm:ss')} · Auto-refreshes every 2 min
+            </p>
           </div>
           <button
             onClick={refresh}
@@ -79,88 +85,126 @@ export default function LiveMapPage() {
           </button>
         </div>
 
+        {/* Group cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {sortedSessions.map((sess) => {
-            const groupRecord = groups.find((g) => g.id === sess.fields['Group']?.[0])
-            const groupName = groupRecord?.fields['Group Name'] || 'Unknown Group'
-            const amCount = sess.fields['AM Count'] ?? 0
-            const pmCount = sess.fields['PM Count']
-            const variance = pmCount != null ? pmCount - amCount : null
-            const updates = fieldUpdates[sess.id] || []
-            const latestUpdate = updates[0]
-            const urgentUpdates = updates.filter((u) => u.fields['Alert Level'] === 'Urgent' && !u.fields['Acknowledged By Supervisor'])
-            const vetFlag = false // would come from movements — simplified here
+            const groupName  = groups.find((g) => g.id === sess.fields['Group']?.[0])?.fields['Group Name'] || 'Unknown'
+            const amCount    = sess.fields['AM Count'] ?? 0
+            const pmCount    = sess.fields['PM Count']
+            const variance   = pmCount != null ? pmCount - amCount : null
+            const updates    = fieldUpdates[sess.id] || []
+            const latest     = updates[0]
+            const urgent     = updates.filter((u) => u.fields['Alert Level'] === 'Urgent' && !u.fields['Acknowledged By Supervisor'])
+            const herdsmanId = sess.fields['Herdsman']?.[0]
+            const herdsman   = staff.find((s) => s.id === herdsmanId)
+            const phone      = herdsman?.fields['Phone']
 
             return (
-              <div
-                key={sess.id}
-                className={`rounded-2xl border-2 p-5 transition-colors ${getVarianceColour(variance)}`}
-              >
-                {/* Card header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-bold text-gray-900">{groupName}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{sess.fields['Grazing Ground'] || 'Ground not set'}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    {variance != null && (
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                        variance < 0 ? 'bg-red-600 text-white' :
-                        variance === 0 ? 'bg-green-600 text-white' :
-                        'bg-amber text-green-primary'
-                      }`}>
-                        {variance > 0 ? '+' : ''}{variance}
-                      </span>
-                    )}
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      sess.fields['Status'] === 'Complete' ? 'bg-green-100 text-green-700' :
-                      sess.fields['Status'] === 'Discrepancy' ? 'bg-red-100 text-red-700' :
-                      'bg-gray-100 text-gray-600'
-                    }`}>
-                      {sess.fields['Status'] || 'Open'}
-                    </span>
-                  </div>
-                </div>
+              <div key={sess.id} className={`rounded-2xl border-2 overflow-hidden transition-colors ${varianceColour(variance)}`}>
 
-                {/* Counts */}
-                <div className="flex gap-3 mb-3">
-                  <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
-                    <p className="text-xs text-gray-500">AM</p>
-                    <p className="font-bold text-lg text-gray-900">{amCount}</p>
+                {/* Card body */}
+                <div className="p-5">
+                  {/* Group name + badges */}
+                  <div className="flex items-start justify-between mb-1">
+                    <div>
+                      <h3 className="font-bold text-gray-900">{groupName}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">{sess.fields['Grazing Ground'] || 'Ground not set'}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      {variance != null && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                          variance < 0 ? 'bg-red-600 text-white' :
+                          variance === 0 ? 'bg-green-600 text-white' :
+                          'bg-amber text-green-primary'
+                        }`}>
+                          {variance > 0 ? '+' : ''}{variance}
+                        </span>
+                      )}
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        sess.fields['Status'] === 'Complete'    ? 'bg-green-100 text-green-700' :
+                        sess.fields['Status'] === 'Discrepancy' ? 'bg-red-100 text-red-700' :
+                        'bg-gray-100 text-gray-600'
+                      }`}>
+                        {sess.fields['Status'] || 'Open'}
+                      </span>
+                    </div>
                   </div>
-                  {latestUpdate && (
-                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-amber">
-                      <p className="text-xs text-amber">Field</p>
-                      <p className="font-bold text-lg text-gray-900">{latestUpdate.fields['Current Count in Field']}</p>
+
+                  {/* AM/Field/PM counts */}
+                  <div className="flex gap-2 my-3">
+                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                      <p className="text-xs text-gray-500">AM</p>
+                      <p className="font-bold text-lg text-gray-900">{amCount}</p>
+                    </div>
+                    {latest && (
+                      <div className="flex-1 bg-white rounded-lg p-2 text-center border border-amber">
+                        <p className="text-xs text-amber">Field</p>
+                        <p className="font-bold text-lg text-gray-900">{latest.fields['Current Count in Field']}</p>
+                      </div>
+                    )}
+                    <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
+                      <p className="text-xs text-gray-500">PM</p>
+                      <p className={`font-bold text-lg ${pmCount == null ? 'text-gray-300' : 'text-gray-900'}`}>{pmCount ?? '—'}</p>
+                    </div>
+                  </div>
+
+                  {/* Alerts */}
+                  {urgent.length > 0 && (
+                    <div className="mb-2 space-y-1">
+                      {urgent.map((u) => (
+                        <div key={u.id} className="flex items-start justify-between bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-xs">
+                          <p className="text-orange-700 font-medium">Urgent: {u.fields['Issues Reported'] || 'Field report'}</p>
+                          <button onClick={() => handleAcknowledge(u.id)} className="text-orange-500 hover:text-orange-700 ml-2 flex-shrink-0 font-semibold">ACK</button>
+                        </div>
+                      ))}
                     </div>
                   )}
-                  <div className="flex-1 bg-white rounded-lg p-2 text-center border border-gray-100">
-                    <p className="text-xs text-gray-500">PM</p>
-                    <p className={`font-bold text-lg ${pmCount == null ? 'text-gray-300' : 'text-gray-900'}`}>{pmCount ?? '—'}</p>
-                  </div>
+                  {variance != null && variance < 0 && (
+                    <div className="bg-red-100 border border-red-300 rounded-lg px-3 py-2 text-xs text-red-700 font-medium mb-2">
+                      Missing animals: {Math.abs(variance)} unaccounted
+                    </div>
+                  )}
                 </div>
 
-                {/* Alert indicators */}
-                {urgentUpdates.length > 0 && (
-                  <div className="mb-2 space-y-1">
-                    {urgentUpdates.map((u) => (
-                      <div key={u.id} className="flex items-start justify-between bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-xs">
-                        <p className="text-orange-700 font-medium">Urgent: {u.fields['Issues Reported'] || 'Field report'}</p>
-                        <button onClick={() => handleAcknowledge(u.id)} className="text-orange-500 hover:text-orange-700 ml-2 flex-shrink-0 font-semibold">ACK</button>
+                {/* Herdsman contact strip */}
+                <div className={`border-t px-4 py-3 ${herdsman ? 'bg-green-primary' : 'bg-gray-50 border-gray-100'}`}>
+                  {herdsman ? (
+                    <div className="flex items-center gap-3">
+                      {/* Avatar */}
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                        <svg viewBox="0 0 20 20" fill="white" className="w-4 h-4">
+                          <path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7 9a7 7 0 1 1 14 0H3z"/>
+                        </svg>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {variance != null && variance < 0 && (
-                  <div className="bg-red-100 border border-red-300 rounded-lg px-3 py-2 text-xs text-red-700 font-medium mb-2">
-                    Missing animals: {Math.abs(variance)} unaccounted
-                  </div>
-                )}
-                {vetFlag && (
-                  <div className="bg-yellow-100 border border-yellow-300 rounded-lg px-3 py-2 text-xs text-yellow-700 font-medium mb-2">
-                    Vet Referral Flag raised
-                  </div>
-                )}
+
+                      {/* Name + number */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold text-sm leading-tight truncate">{herdsman.fields['Name']}</p>
+                        {phone
+                          ? <p className="text-green-light text-xs">{phone}</p>
+                          : <p className="text-green-light/60 text-xs italic">No phone on record</p>
+                        }
+                      </div>
+
+                      {/* Call button */}
+                      {phone && (
+                        <a
+                          href={`tel:${phone}`}
+                          title={`Call ${herdsman.fields['Name']}`}
+                          className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-white text-green-primary text-xs font-bold hover:bg-green-light transition-colors flex-shrink-0"
+                        >
+                          <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+                            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z"/>
+                          </svg>
+                          Call
+                        </a>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 italic">No herdsman assigned</p>
+                  )}
+                </div>
+
               </div>
             )
           })}
