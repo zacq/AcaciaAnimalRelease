@@ -95,9 +95,11 @@ export default function LiveMapPage() {
             const updates    = fieldUpdates[sess.id] || []
             const latest     = updates[0]
             const urgent     = updates.filter((u) => u.fields['Alert Level'] === 'Urgent' && !u.fields['Acknowledged By Supervisor'])
-            const herdsmanId = sess.fields['Herdsman']?.[0]
-            const herdsman   = staff.find((s) => s.id === herdsmanId)
-            const phone      = herdsman?.fields['Phone']
+            const herdsmanId  = sess.fields['Herdsman']?.[0]
+            const herdsman    = staff.find((s) => s.id === herdsmanId)
+            const phone       = herdsman?.fields['Phone']
+            const fmReview    = sess.fields['Farm Manager Reviewed']
+            const fmNotes     = sess.fields['Notes']
 
             return (
               <div key={sess.id} className={`rounded-2xl border-2 overflow-hidden transition-colors ${varianceColour(variance)}`}>
@@ -162,6 +164,25 @@ export default function LiveMapPage() {
                   {variance != null && variance < 0 && (
                     <div className="bg-red-100 border border-red-300 rounded-lg px-3 py-2 text-xs text-red-700 font-medium mb-2">
                       Missing animals: {Math.abs(variance)} unaccounted
+                    </div>
+                  )}
+
+                  {/* Farm Manager review */}
+                  {(fmReview || fmNotes) && (
+                    <div className="border border-gray-200 rounded-lg px-3 py-2 text-xs space-y-1 mb-2">
+                      {fmReview && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 font-medium">FM Review:</span>
+                          <span className={`px-2 py-0.5 rounded-full font-semibold ${
+                            fmReview === 'Approved'           ? 'bg-green-100 text-green-700' :
+                            fmReview === 'Discrepancy Noted'  ? 'bg-red-100 text-red-700' :
+                            'bg-amber-pale text-amber'
+                          }`}>{fmReview}</span>
+                        </div>
+                      )}
+                      {fmNotes && (
+                        <p className="text-gray-500 italic truncate">{fmNotes}</p>
+                      )}
                     </div>
                   )}
                 </div>

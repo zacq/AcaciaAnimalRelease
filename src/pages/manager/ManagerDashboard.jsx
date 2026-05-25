@@ -31,7 +31,7 @@ const GROUP_ORDER = [
 ]
 
 export default function ManagerDashboard() {
-  const { sessions, groups, movements, loading } = useSessionStore()
+  const { sessions, groups, movements, fieldUpdates, loading } = useSessionStore()
   useTodaySessions()
 
   const [staff, setStaff] = useState([])
@@ -103,6 +103,7 @@ export default function ManagerDashboard() {
             const pmCount  = sess.fields['PM Count']
             const variance = pmCount != null ? pmCount - amCount : null
             const sessMovements = movements[sess.id] || []
+            const sessUpdates   = fieldUpdates[sess.id] || []
             const herdsmanId = sess.fields['Herdsman']?.[0]
             const herdsman   = resolveStaff(herdsmanId)
             const isExpanded = expandedId === sess.id
@@ -195,7 +196,75 @@ export default function ManagerDashboard() {
                 {isExpanded && (
                   <div className="border-t border-gray-100 bg-gray-50 p-4 space-y-4">
 
-                    {/* Movements */}
+                    {/* Herdsman field updates */}
+                    <div>
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Herdsman Field Updates</p>
+                      {sessUpdates.length === 0 ? (
+                        <p className="text-xs text-gray-400 italic">No field updates submitted today.</p>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {sessUpdates.map((u) => (
+                            <div key={u.id} className="flex items-start gap-2 text-xs bg-white rounded-lg px-3 py-2 border border-gray-100">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-semibold text-gray-800">Count: {u.fields['Current Count in Field']}</span>
+                                  {amCount > 0 && u.fields['Current Count in Field'] != null && (
+                                    <span className={`font-medium ${
+                                      u.fields['Current Count in Field'] < amCount ? 'text-red-500' :
+                                      u.fields['Current Count in Field'] === amCount ? 'text-green-600' : 'text-amber'
+                                    }`}>
+                                      ({u.fields['Current Count in Field'] > amCount ? '+' : ''}{u.fields['Current Count in Field'] - amCount} from AM)
+                                    </span>
+                                  )}
+                                </div>
+                                {u.fields['Issues Reported'] && (
+                                  <p className="text-gray-500 mt-0.5 truncate">{u.fields['Issues Reported']}</p>
+                                )}
+                              </div>
+                              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                <span className={`px-1.5 py-0.5 rounded-full font-medium ${
+                                  u.fields['Alert Level'] === 'Urgent'   ? 'bg-red-100 text-red-700' :
+                                  u.fields['Alert Level'] === 'Advisory' ? 'bg-amber-pale text-amber' :
+                                  'bg-green-100 text-green-700'
+                                }`}>{u.fields['Alert Level']}</span>
+                                {u.fields['Timestamp'] && (
+                                  <span className="text-gray-400">{format(new Date(u.fields['Timestamp']), 'HH:mm')}</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Supervisor session status */}
+                    <div>
+                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Supervisor Status</p>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <span className={`px-2 py-1 rounded-full font-medium ${
+                          sess.fields['Supervisor Signature'] ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          {sess.fields['Supervisor Signature'] ? 'Supervisor signed' : 'Awaiting supervisor'}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full font-medium ${
+                          sess.fields['Herdsman Signature'] ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          {sess.fields['Herdsman Signature'] ? 'Herdsman signed' : 'Awaiting herdsman'}
+                        </span>
+                        {sess.fields['Date/Time Signed'] && (
+                          <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-500">
+                            Signed {format(new Date(sess.fields['Date/Time Signed']), 'HH:mm')}
+                          </span>
+                        )}
+                      </div>
+                      {sess.fields['Notes'] && (
+                        <p className="mt-2 text-xs text-gray-600 bg-white rounded-lg px-3 py-2 border border-gray-100">
+                          <span className="font-medium text-gray-500">Notes: </span>{sess.fields['Notes']}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Animal Movements */}
                     <div>
                       <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Animal Movements</p>
                       {sessMovements.length === 0 ? (
