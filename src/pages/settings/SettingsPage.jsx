@@ -20,6 +20,10 @@ export default function SettingsPage() {
   const [staffLoading, setStaffLoading] = useState(false)
   const [newStaff, setNewStaff] = useState({ name: '', role: 'Herdsman', employeeId: '', phone: '', username: '', password: '' })
   const [staffError, setStaffError] = useState('')
+  const [editingId, setEditingId] = useState(null)
+  const [editDraft, setEditDraft] = useState({})
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
 
   // Groups
   const [groups, setGroups] = useState([])
@@ -83,6 +87,48 @@ export default function SettingsPage() {
   async function handleToggleActive(staffRecord) {
     const updated = await updateStaff(staffRecord.id, { Active: !staffRecord.fields['Active'] })
     setStaff((s) => s.map((m) => m.id === staffRecord.id ? { ...m, fields: { ...m.fields, Active: updated.fields['Active'] } } : m))
+  }
+
+  function startEdit(s) {
+    setEditingId(s.id)
+    setEditError('')
+    setEditDraft({
+      name:       s.fields['Name'] || '',
+      role:       s.fields['Role'] || 'Herdsman',
+      employeeId: s.fields['Employee ID'] || '',
+      phone:      s.fields['Phone'] || '',
+      username:   s.fields['Username'] || '',
+      newPassword: '',
+    })
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditDraft({})
+    setEditError('')
+  }
+
+  async function saveEdit(id) {
+    setEditError('')
+    if (!editDraft.name || !editDraft.username) { setEditError('Name and username are required'); return }
+    setEditSaving(true)
+    try {
+      const fields = {
+        Name:          editDraft.name,
+        Role:          editDraft.role,
+        'Employee ID': editDraft.employeeId,
+        Phone:         editDraft.phone,
+        Username:      editDraft.username,
+      }
+      if (editDraft.newPassword) fields['Password Hash'] = hashPassword(editDraft.newPassword)
+      const updated = await updateStaff(id, fields)
+      setStaff((s) => s.map((m) => m.id === id ? { ...m, fields: { ...m.fields, ...updated.fields } } : m))
+      setEditingId(null)
+    } catch (err) {
+      setEditError(err.message || 'Save failed')
+    } finally {
+      setEditSaving(false)
+    }
   }
 
   async function handleGroupHerdsmanSave(groupId) {
@@ -181,27 +227,106 @@ export default function SettingsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {staff.map((s) => (
-                      <tr key={s.id} className="border-t border-gray-50">
-                        <td className="px-4 py-3 font-medium">{s.fields['Name']}</td>
-                        <td className="px-4 py-3 text-gray-600">{s.fields['Role']}</td>
-                        <td className="px-4 py-3 text-gray-500">{s.fields['Employee ID'] || '—'}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{s.fields['Username']}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-0.5 rounded-full text-xs ${s.fields['Active'] ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                            {s.fields['Active'] ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        {canManageStaff && (
-                          <td className="px-4 py-3">
-                            <button onClick={() => handleToggleActive(s)}
-                              className="text-xs text-gray-500 hover:text-green-primary">
-                              {s.fields['Active'] ? 'Deactivate' : 'Activate'}
-                            </button>
+                    {staff.map((s) => {
+                      const isEditing = editingId === s.id
+                      if (isEditing) {
+                        return (
+                          <tr key={s.id} className="border-t border-green-primary/20 bg-green-50/40">
+                            <td colSpan={canManageStaff ? 6 : 5} className="px-4 py-4">
+                              {editError && <p className="text-red-600 text-xs mb-3">{editError}</p>}
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+                                {[['name','Full Name'],['employeeId','Employee ID'],['phone','Phone']].map(([k, lbl]) => (
+                                  <div key={k}>
+                                    <label className="text-xs text-gray-500 mb-1 block">{lbl}</label>
+                                    <input
+                                      type="text"
+                                      value={editDraft[k]}
+                                      onChange={(e) => setEditDraft((d) => ({ ...d, [k]: e.target.value }))}
+                                      className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid"
+                                    />
+                                  </div>
+                                ))}
+                                <div>
+                                  <label className="text-xs text-gray-500 mb-1 block">Role</label>
+                                  <select
+                                    value={editDraft.role}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, role: e.target.value }))}
+                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid"
+                                  >
+                                    {ROLES.map((r) => <option key={r}>{r}</option>)}
+                                  </select>
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-500 mb-1 block">Username</label>
+                                  <input
+                                    type="text"
+                                    value={editDraft.username}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, username: e.target.value }))}
+                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-500 mb-1 block">New Password <span className="text-gray-400">(leave blank to keep)</span></label>
+                                  <input
+                                    type="password"
+                                    value={editDraft.newPassword}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, newPassword: e.target.value }))}
+                                    placeholder="••••••••"
+                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid"
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => saveEdit(s.id)}
+                                  disabled={editSaving}
+                                  className="px-4 py-1.5 bg-green-primary text-white rounded-lg text-sm font-medium hover:bg-green-deep disabled:opacity-60 transition-colors"
+                                >
+                                  {editSaving ? 'Saving…' : 'Save'}
+                                </button>
+                                <button
+                                  onClick={cancelEdit}
+                                  className="px-4 py-1.5 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      }
+                      return (
+                        <tr key={s.id} className="border-t border-gray-50">
+                          <td className="px-4 py-3 font-medium">{s.fields['Name']}</td>
+                          <td className="px-4 py-3 text-gray-600">{s.fields['Role']}</td>
+                          <td className="px-4 py-3 text-gray-500">{s.fields['Employee ID'] || '—'}</td>
+                          <td className="px-4 py-3 font-mono text-xs">{s.fields['Username']}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${s.fields['Active'] ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {s.fields['Active'] ? 'Active' : 'Inactive'}
+                            </span>
                           </td>
-                        )}
-                      </tr>
-                    ))}
+                          {canManageStaff && (
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3 justify-end">
+                                <button
+                                  onClick={() => startEdit(s)}
+                                  className="text-xs text-green-primary hover:text-green-deep font-medium"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleToggleActive(s)}
+                                  className="text-xs text-gray-500 hover:text-gray-700"
+                                >
+                                  {s.fields['Active'] ? 'Deactivate' : 'Activate'}
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               )}
