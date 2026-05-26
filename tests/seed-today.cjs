@@ -55,7 +55,7 @@ function grazingGround(groupIndex) {
 const AM_COUNTS = {
   'Annex Farm':             86,
   'Main Farm':              93,
-  'Horsefield':             77,
+  'Horsefield':              3,  // horses are fixed at 3 — never changes
   'Paddock - Mothers':      61,
   'Paddock - Kids':         48,
   'Paddock - Males':        69,
@@ -161,7 +161,7 @@ async function main() {
     await sleep(220)
     await api.patch(`/Daily%20Sessions/${sessId}`, {
       fields: {
-        'PM Count':              pm[name],
+        'PM Count':              name === 'Horsefield' ? 3 : pm[name],
         'PM Return Time':        PM_TIME,
         Status:                  'Complete',
         'Supervisor Signature':  true,

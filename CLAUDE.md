@@ -116,6 +116,8 @@ Seven groups rendered in this fixed order everywhere — do not change the array
 
 `Sick/Vulnerable Flock` is always enclosure-only — its Grazing Ground input renders as a locked "Enclosure (N/A)" field in `GrazingGroundInput`.
 
+**Horsefield is always fixed at 3 horses.** The horse count never changes day-to-day regardless of movements. When seeding or computing PM counts, always hard-code Horsefield to 3. The group still participates in the daily session (grazing ground, herdsman, signatures) but its AM and PM count are always 3.
+
 ### Offline support
 
 `src/utils/offlineCache.js` provides a localStorage queue used by `FieldViewPage` (Herdsman role) to buffer writes when `navigator.onLine` is false and replay them on reconnect.

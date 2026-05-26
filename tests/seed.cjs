@@ -137,7 +137,7 @@ async function main() {
   const counts = {
     'Annex Farm':           85,
     'Main Farm':            95,
-    'Horsefield':           80,
+    'Horsefield':            3,   // horses are fixed at 3 — never changes
     'Paddock - Mothers':    60,
     'Paddock - Kids':       45,
     'Paddock - Males':      70,
@@ -228,7 +228,7 @@ async function main() {
       const sessId = sessionIds[name]
       if (!sessId) continue
 
-      const pmCount  = pm[name]
+      const pmCount  = name === 'Horsefield' ? 3 : pm[name]
       const hasDisc  = discrepancyGroups.has(name)
       const status   = hasDisc ? 'Discrepancy' : 'Complete'
 
@@ -248,8 +248,9 @@ async function main() {
     }
 
     // Carry PM counts forward as next day's AM
+    // Horsefield is always fixed at 3 (permanent horse count — never changes)
     for (const name of GROUP_ORDER) {
-      counts[name] = pm[name]
+      counts[name] = name === 'Horsefield' ? 3 : pm[name]
     }
 
     const total = Object.values(counts).reduce((s, c) => s + c, 0)
