@@ -23,7 +23,7 @@ const IC = {
 }
 
 const supervisorLinks = [
-  { to: '/dashboard', label: 'AM Session', icon: IC.sun       },
+  { to: '/dashboard', label: 'AM Session', icon: IC.sun,      subItems: GROUP_ORDER, subItemMode: 'page' },
   { to: '/pm',        label: 'PM Session', icon: IC.moon      },
   { to: '/map',       label: 'Live Map',   icon: IC.map       },
   { to: '/history',   label: 'History',    icon: IC.history   },
@@ -38,8 +38,8 @@ const FARMS = [
 ]
 
 const managerLinks = [
-  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER },
-  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS       },
+  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER, subItemMode: 'page'   },
+  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS,       subItemMode: 'anchor' },
   { to: '/history', label: 'History',     icon: IC.history   },
 ]
 
@@ -77,8 +77,12 @@ export default function NavBar() {
     navigate('/login', { replace: true })
   }
 
-  function goToSubItem(parentTo, itemName) {
-    navigate(`${parentTo}#${slugify(itemName)}`)
+  function goToSubItem(link, itemName) {
+    if (link.subItemMode === 'page') {
+      navigate(`/group/${slugify(itemName)}`)
+    } else {
+      navigate(`${link.to}#${slugify(itemName)}`)
+    }
   }
 
   return (
@@ -139,7 +143,7 @@ export default function NavBar() {
                         return (
                           <button
                             key={groupName}
-                            onClick={() => goToSubItem(link.to, groupName)}
+                            onClick={() => goToSubItem(link, groupName)}
                             className={`w-full text-left py-1.5 px-2 text-xs whitespace-nowrap rounded transition-colors ${
                               isGroupActive
                                 ? 'text-amber font-semibold'

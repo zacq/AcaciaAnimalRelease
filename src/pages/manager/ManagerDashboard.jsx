@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTodaySessions } from '../../hooks/useTodaySessions'
 import { useSessionStore } from '../../store/sessionStore'
 import { updateSession } from '../../api/sessionsService'
 import { getAllStaff } from '../../api/staffService'
 import AppShell from '../../components/layout/AppShell'
-import AnimalBrowser from '../../components/animals/AnimalBrowser'
 import { requestNotificationPermission } from '../../utils/notifications'
 import { slugify } from '../../components/layout/NavBar'
 
@@ -55,11 +54,11 @@ export default function ManagerDashboard() {
   useTodaySessions()
 
   const [staff, setStaff]                   = useState([])
-  const [expandedId, setExpandedId]         = useState(null)
-  const [highlightId, setHighlightId]       = useState(null)
-  const [commentDraft, setCommentDraft]     = useState({})
-  const [savingComment, setSavingComment]   = useState(null)
-  const [animalBrowserGroup, setAnimalBrowserGroup] = useState(null)
+  const navigate = useNavigate()
+  const [expandedId, setExpandedId]     = useState(null)
+  const [highlightId, setHighlightId]   = useState(null)
+  const [commentDraft, setCommentDraft] = useState({})
+  const [savingComment, setSavingComment] = useState(null)
 
   useEffect(() => { requestNotificationPermission() }, [])
   useEffect(() => { getAllStaff().then(setStaff).catch(console.error) }, [])
@@ -198,10 +197,10 @@ export default function ManagerDashboard() {
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center gap-3 justify-end">
                           <button
-                            onClick={(e) => { e.stopPropagation(); setAnimalBrowserGroup(group) }}
+                            onClick={(e) => { e.stopPropagation(); navigate(`/group/${slugify(name)}`) }}
                             className="text-xs text-amber font-medium hover:text-amber-light transition-colors"
                           >
-                            Animals
+                            View group
                           </button>
                           <span className={`text-xs text-green-primary font-medium flex items-center gap-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
                             <svg viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -287,7 +286,7 @@ export default function ManagerDashboard() {
                         onReview={handleReview}
                         onSaveComment={() => handleSaveComment(sess.id)}
                         saving={savingComment === sess.id}
-                        onAnimals={() => setAnimalBrowserGroup(group)}
+                        onViewGroup={() => navigate(`/group/${slugify(name)}`)}
                       />
                     </div>
                   )}
@@ -297,23 +296,6 @@ export default function ManagerDashboard() {
           </div>
         </div>
 
-        {/* ── Animal Browser modal ─────────────────────────────────────── */}
-        {animalBrowserGroup && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4">
-            <div className="bg-white w-full sm:max-w-2xl rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col" style={{ height: '85vh' }}>
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
-                <div>
-                  <h2 className="font-bold text-green-primary">Animal Registry</h2>
-                  <p className="text-xs text-gray-500">{animalBrowserGroup.fields?.['Group Name']}</p>
-                </div>
-                <button onClick={() => setAnimalBrowserGroup(null)} className="text-gray-400 hover:text-gray-600 text-lg font-light">✕</button>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <AnimalBrowser group={animalBrowserGroup} canAddWeight={true} />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </AppShell>
   )
@@ -322,7 +304,7 @@ export default function ManagerDashboard() {
 // ── Shared inline detail panel ────────────────────────────────────────────────
 function ExpandedDetail({
   sess, sessMovements, sessUpdates, amCount, groups,
-  commentDraft, onDraftChange, onReview, onSaveComment, saving, onAnimals,
+  commentDraft, onDraftChange, onReview, onSaveComment, saving, onViewGroup,
 }) {
   function groupName(id) {
     return groups.find((g) => g.id === id)?.fields['Group Name'] || '—'
@@ -434,10 +416,13 @@ function ExpandedDetail({
           </button>
         </div>
 
-        {onAnimals && (
-          <button onClick={onAnimals}
-            className="text-xs text-amber font-medium hover:text-amber-light transition-colors">
-            View animals →
+        {onViewGroup && (
+          <button onClick={onViewGroup}
+            className="text-xs text-amber font-semibold hover:text-amber-light transition-colors flex items-center gap-1">
+            View full group page
+            <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+              <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
           </button>
         )}
       </div>
