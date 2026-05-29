@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Development approach — mandatory for all changes
+
+Every change to this app, at any point in its lifecycle, follows this three-step sequence. No exceptions.
+
+**Step 1 — Brainstorm**
+Before writing any code, surface design decisions, ambiguities, and tradeoffs. Present options with a clear recommendation. Ask only the questions that actually block implementation. Get explicit sign-off.
+
+**Step 2 — Implementation plan + checklist**
+Write a numbered task list (use TodoWrite). Each task must be specific and verifiable. State success criteria. Only start coding once the plan is confirmed.
+
+**Step 3 — Implement**
+Execute the checklist surgically — touch only what the plan covers. Mark each task complete immediately when done. Build and verify after each phase.
+
+---
+
 ## Commands
 
 ```bash
