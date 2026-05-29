@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { getAllStaff, createStaff, updateStaff } from '../../api/staffService'
 import { getAllGroups, updateGroupHerdsman } from '../../api/groupsService'
-import { getAllAnimals, createAnimal, updateAnimal } from '../../api/registryService'
+import { getAllAnimals, createAnimal } from '../../api/registryService'
+import AnimalBrowser from '../../components/animals/AnimalBrowser'
 import { hashPassword } from '../../utils/auth'
 import { useAuth } from '../../auth/AuthContext'
 import AppShell from '../../components/layout/AppShell'
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const [animalLoading, setAnimalLoading] = useState(false)
   const [newAnimal, setNewAnimal] = useState({ earTag: '', groupId: '', status: 'Active' })
   const [animalError, setAnimalError] = useState('')
+  const [animalBrowseGroupId, setAnimalBrowseGroupId] = useState('')
 
   // Alert config
   const [varianceThreshold, setVarianceThreshold] = useState(-1)
@@ -375,14 +377,15 @@ export default function SettingsPage() {
         {/* Animal Registry Tab */}
         {tab === 'Animal Registry' && (
           <div className="space-y-5">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-sm font-semibold text-gray-800 mb-4">Add Animal Record</h2>
+            {/* Quick-add form */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <h2 className="text-sm font-semibold text-gray-800 mb-3">Add New Animal</h2>
               {animalError && <p className="text-red-600 text-sm mb-3">{animalError}</p>}
               <div className="flex flex-wrap gap-3 items-end">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Ear Tag *</label>
                   <input type="text" value={newAnimal.earTag} onChange={(e) => setNewAnimal((a) => ({ ...a, earTag: e.target.value }))}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid w-36" placeholder="AV-0000" />
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid w-36" placeholder="e.g. 064G" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Group</label>
@@ -406,33 +409,28 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            {/* Group browser */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {animalLoading ? <p className="px-6 py-8 text-center text-gray-500">Loading…</p> : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide text-left">
-                      <th className="px-4 py-3">Ear Tag</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Date Added</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {animals.slice(0, 100).map((a) => (
-                      <tr key={a.id} className="border-t border-gray-50">
-                        <td className="px-4 py-3 font-mono font-medium">{a.fields['Ear Tag']}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            a.fields['Status'] === 'Active' ? 'bg-green-100 text-green-700' :
-                            a.fields['Status'] === 'Deceased' ? 'bg-red-100 text-red-700' :
-                            a.fields['Status'] === 'Sold' ? 'bg-gray-100 text-gray-600' :
-                            'bg-amber-pale text-amber'
-                          }`}>{a.fields['Status']}</span>
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">{a.fields['Date Added'] || '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-700">Browse by group:</label>
+                <select
+                  value={animalBrowseGroupId}
+                  onChange={(e) => setAnimalBrowseGroupId(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-green-mid"
+                >
+                  <option value="">— Select a group —</option>
+                  {groups.map((g) => <option key={g.id} value={g.id}>{g.fields['Group Name']}</option>)}
+                </select>
+              </div>
+              {animalBrowseGroupId ? (
+                <div style={{ height: '55vh' }}>
+                  <AnimalBrowser
+                    group={groups.find(g => g.id === animalBrowseGroupId)}
+                    canAddWeight={true}
+                  />
+                </div>
+              ) : (
+                <p className="px-6 py-10 text-center text-sm text-gray-400 italic">Select a group to view its animals.</p>
               )}
             </div>
           </div>

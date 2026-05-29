@@ -5,6 +5,7 @@ import { useSessionStore } from '../../store/sessionStore'
 import { updateSession } from '../../api/sessionsService'
 import { getAllStaff } from '../../api/staffService'
 import AppShell from '../../components/layout/AppShell'
+import AnimalBrowser from '../../components/animals/AnimalBrowser'
 import { requestNotificationPermission } from '../../utils/notifications'
 
 const REVIEW_OPTIONS = ['Approved', 'Query', 'Discrepancy Noted']
@@ -35,9 +36,10 @@ export default function ManagerDashboard() {
   useTodaySessions()
 
   const [staff, setStaff] = useState([])
-  const [expandedId, setExpandedId] = useState(null)
-  const [commentDraft, setCommentDraft] = useState({})
-  const [savingComment, setSavingComment] = useState(null)
+  const [expandedId, setExpandedId]         = useState(null)
+  const [commentDraft, setCommentDraft]     = useState({})
+  const [savingComment, setSavingComment]   = useState(null)
+  const [animalBrowserGroup, setAnimalBrowserGroup] = useState(null)
 
   useEffect(() => { requestNotificationPermission() }, [])
   useEffect(() => { getAllStaff().then(setStaff).catch(console.error) }, [])
@@ -62,7 +64,7 @@ export default function ManagerDashboard() {
 
   const sortedSessions = GROUP_ORDER.map((name) => {
     const group = groups.find((g) => g.fields['Group Name'] === name)
-    return { name, session: sessions.find((s) => s.fields['Group']?.[0] === group?.id) }
+    return { name, group, session: sessions.find((s) => s.fields['Group']?.[0] === group?.id) }
   }).filter(({ session }) => session)
 
   const totalAM = sortedSessions.reduce((s, { session }) => s + (session?.fields['AM Count'] || 0), 0)
@@ -98,7 +100,7 @@ export default function ManagerDashboard() {
 
         {/* Group cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {sortedSessions.map(({ name, session: sess }) => {
+          {sortedSessions.map(({ name, group, session: sess }) => {
             const amCount  = sess.fields['AM Count'] ?? 0
             const pmCount  = sess.fields['PM Count']
             const variance = pmCount != null ? pmCount - amCount : null
@@ -176,11 +178,16 @@ export default function ManagerDashboard() {
 
                   {/* Footer row */}
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">
-                      {sessMovements.length > 0
-                        ? `${sessMovements.length} movement${sessMovements.length > 1 ? 's' : ''}`
-                        : 'No movements'}
-                    </span>
+                    <button
+                      onClick={() => setAnimalBrowserGroup(group)}
+                      className="text-xs text-amber font-medium hover:underline flex items-center gap-1"
+                    >
+                      <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                      Animals
+                    </button>
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : sess.id)}
                       className="text-xs text-green-primary font-medium flex items-center gap-1 hover:underline"
@@ -328,6 +335,24 @@ export default function ManagerDashboard() {
           })}
         </div>
       </div>
+
+      {/* Animal Browser modal */}
+      {animalBrowserGroup && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4">
+          <div className="bg-white w-full sm:max-w-2xl rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col" style={{ height: '85vh' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+              <div>
+                <h2 className="font-bold text-green-primary">Animal Registry</h2>
+                <p className="text-xs text-gray-500">{animalBrowserGroup.fields?.['Group Name']}</p>
+              </div>
+              <button onClick={() => setAnimalBrowserGroup(null)} className="text-gray-400 hover:text-gray-600 text-lg font-light">✕</button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <AnimalBrowser group={animalBrowserGroup} canAddWeight={true} />
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   )
 }
