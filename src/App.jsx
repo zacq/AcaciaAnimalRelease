@@ -8,6 +8,7 @@ import PMSessionPage from './pages/supervisor/PMSessionPage'
 import LiveMapPage from './pages/supervisor/LiveMapPage'
 import FieldViewPage from './pages/herdsman/FieldViewPage'
 import ManagerDashboard from './pages/manager/ManagerDashboard'
+import LiveStatusPage from './pages/manager/LiveStatusPage'
 import HistoryPage from './pages/HistoryPage'
 import SettingsPage from './pages/settings/SettingsPage'
 
@@ -58,6 +59,11 @@ export default function App() {
           <Route path="/manager" element={
             <ProtectedRoute allowedRoles={['Farm Manager']}>
               <ManagerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/status" element={
+            <ProtectedRoute allowedRoles={['Farm Manager']}>
+              <LiveStatusPage />
             </ProtectedRoute>
           } />
 

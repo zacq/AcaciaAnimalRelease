@@ -43,7 +43,7 @@ const GROUP_ORDER = [
   'Paddock - Mothers', 'Paddock - Kids', 'Paddock - Males', 'Sick/Vulnerable Flock',
 ]
 
-const GRAZING_GROUNDS = ['North Field', 'South Pasture', 'East Ridge', 'Northern Ranch']
+const GRAZING_GROUNDS = ['Acacia Hill Estate', 'Acacia Ridge Farm', 'Acacia Springs Farm', 'Acacia Tumaini Farm']
 const DAY_INDEX = 7  // May 25 is 7 days after May 18 (day 0)
 
 function grazingGround(groupIndex) {

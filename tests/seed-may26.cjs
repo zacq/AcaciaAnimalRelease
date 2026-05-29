@@ -52,7 +52,7 @@ const HERDSMEN = [
 const ROTATION = [1, 2, 3, 4, 0, 1, 2] // Tuesday
 
 // Grazing grounds (day 8 from May 18)
-const GRAZING_GROUNDS = ['North Field', 'South Pasture', 'East Ridge', 'Northern Ranch']
+const GRAZING_GROUNDS = ['Acacia Hill Estate', 'Acacia Ridge Farm', 'Acacia Springs Farm', 'Acacia Tumaini Farm']
 const DAY_INDEX = 8
 const GROUP_ORDER = [
   'Annex Farm', 'Main Farm', 'Horsefield',

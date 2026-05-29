@@ -30,10 +30,17 @@ const supervisorLinks = [
   { to: '/settings',  label: 'Settings',   icon: IC.settings  },
 ]
 
+const FARMS = [
+  'Acacia Hill Estate',
+  'Acacia Ridge Farm',
+  'Acacia Springs Farm',
+  'Acacia Tumaini Farm',
+]
+
 const managerLinks = [
-  { to: '/manager', label: 'Overview', icon: IC.dashboard, subItems: GROUP_ORDER },
-  { to: '/map',     label: 'Live Map', icon: IC.map       },
-  { to: '/history', label: 'History',  icon: IC.history   },
+  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER },
+  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS       },
+  { to: '/history', label: 'History',     icon: IC.history   },
 ]
 
 const herdsmanLinks = [
@@ -70,8 +77,8 @@ export default function NavBar() {
     navigate('/login', { replace: true })
   }
 
-  function goToGroup(groupName) {
-    navigate(`/manager#${slugify(groupName)}`)
+  function goToSubItem(parentTo, itemName) {
+    navigate(`${parentTo}#${slugify(itemName)}`)
   }
 
   return (
@@ -132,7 +139,7 @@ export default function NavBar() {
                         return (
                           <button
                             key={groupName}
-                            onClick={() => goToGroup(groupName)}
+                            onClick={() => goToSubItem(link.to, groupName)}
                             className={`w-full text-left py-1.5 px-2 text-xs whitespace-nowrap rounded transition-colors ${
                               isGroupActive
                                 ? 'text-amber font-semibold'

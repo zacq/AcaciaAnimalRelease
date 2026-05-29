@@ -44,7 +44,7 @@ const GROUP_ORDER = [
   'Paddock - Mothers', 'Paddock - Kids', 'Paddock - Males', 'Sick/Vulnerable Flock',
 ]
 
-const GRAZING_GROUNDS = ['North Field', 'South Pasture', 'East Ridge', 'Northern Ranch']
+const GRAZING_GROUNDS = ['Acacia Hill Estate', 'Acacia Ridge Farm', 'Acacia Springs Farm', 'Acacia Tumaini Farm']
 
 function grazingGround(groupIndex, dayIndex) {
   if (GROUP_ORDER[groupIndex] === 'Sick/Vulnerable Flock') return 'Enclosure (N/A)'
