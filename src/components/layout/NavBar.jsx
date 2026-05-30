@@ -38,8 +38,8 @@ const FARMS = [
 ]
 
 const managerLinks = [
-  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER, subItemMode: 'page', subItemBasePath: '/group' },
-  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS,       subItemMode: 'page', subItemBasePath: '/farm'  },
+  { to: '/manager', label: 'Animal Groups',  icon: IC.dashboard, subItems: GROUP_ORDER, subItemMode: 'page', subItemBasePath: '/group' },
+  { to: '/status',  label: 'Pasture Fields', icon: IC.map,       subItems: FARMS,       subItemMode: 'page', subItemBasePath: '/farm'  },
   { to: '/history', label: 'History',     icon: IC.history   },
 ]
 

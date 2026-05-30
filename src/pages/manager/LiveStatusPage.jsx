@@ -342,7 +342,7 @@ export default function LiveStatusPage() {
 
         {/* Page header */}
         <div>
-          <h1 className="text-xl font-bold text-green-primary tracking-tight">Live Status</h1>
+          <h1 className="text-xl font-bold text-green-primary tracking-tight">Pasture Fields</h1>
           <p className="text-xs text-gray-400 mt-0.5">
             {format(new Date(), 'EEEE, d MMMM yyyy')} · Real-time herd activity across grazing farms
           </p>

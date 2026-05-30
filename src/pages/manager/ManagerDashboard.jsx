@@ -118,7 +118,7 @@ export default function ManagerDashboard() {
         {/* ── Page header ─────────────────────────────────────────────── */}
         <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-xl font-bold text-green-primary tracking-tight">Farm Overview</h1>
+            <h1 className="text-xl font-bold text-green-primary tracking-tight">Animal Groups</h1>
             <p className="text-xs text-gray-400 mt-0.5">{format(new Date(), 'EEEE, d MMMM yyyy')} · Read-only</p>
           </div>
         </div>
