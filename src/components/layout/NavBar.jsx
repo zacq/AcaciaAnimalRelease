@@ -38,8 +38,8 @@ const FARMS = [
 ]
 
 const managerLinks = [
-  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER, subItemMode: 'page'   },
-  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS,       subItemMode: 'anchor' },
+  { to: '/manager', label: 'Overview',    icon: IC.dashboard, subItems: GROUP_ORDER, subItemMode: 'page', subItemBasePath: '/group' },
+  { to: '/status',  label: 'Live Status', icon: IC.map,       subItems: FARMS,       subItemMode: 'page', subItemBasePath: '/farm'  },
   { to: '/history', label: 'History',     icon: IC.history   },
 ]
 
@@ -79,7 +79,7 @@ export default function NavBar() {
 
   function goToSubItem(link, itemName) {
     if (link.subItemMode === 'page') {
-      navigate(`/group/${slugify(itemName)}`)
+      navigate(`${link.subItemBasePath || '/group'}/${slugify(itemName)}`)
     } else {
       navigate(`${link.to}#${slugify(itemName)}`)
     }
@@ -106,7 +106,8 @@ export default function NavBar() {
         {/* Nav links */}
         <div className="flex-1 py-2 overflow-y-auto overflow-x-hidden">
           {links.map((link) => {
-            const isActive  = location.pathname === link.to
+            const isActive  = location.pathname === link.to ||
+              (link.subItemBasePath && location.pathname.startsWith(link.subItemBasePath + '/'))
             const hasGroups = !!link.subItems
 
             return (

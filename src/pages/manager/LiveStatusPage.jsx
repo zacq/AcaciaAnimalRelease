@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTodaySessions } from '../../hooks/useTodaySessions'
 import { useSessionStore } from '../../store/sessionStore'
 import { getAllStaff } from '../../api/staffService'
@@ -205,7 +205,7 @@ function GroupCard({ sess, group, herdsman, sessUpdates, amCount }) {
 }
 
 // ── Farm section ──────────────────────────────────────────────────────────────
-function FarmSection({ farmName, sessions, groups, staff, movements, fieldUpdates, isHighlit }) {
+function FarmSection({ farmName, sessions, groups, staff, movements, fieldUpdates, isHighlit, onViewFarm }) {
   const farmSessions = sessions.filter(
     s => s.fields['Grazing Ground'] === farmName &&
          !ENCLOSURE_GROUPS.includes(
@@ -230,7 +230,18 @@ function FarmSection({ farmName, sessions, groups, staff, movements, fieldUpdate
         isHighlit ? 'bg-amber-pale/50' : 'bg-white'
       }`}>
         <div>
-          <h2 className="font-bold text-green-primary text-sm">{farmName}</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="font-bold text-green-primary text-sm">{farmName}</h2>
+            <button
+              onClick={onViewFarm}
+              className="text-[10px] text-amber font-semibold hover:text-amber-light transition-colors flex items-center gap-1"
+            >
+              View farm
+              <svg viewBox="0 0 16 16" fill="currentColor" className="w-2.5 h-2.5">
+                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </button>
+          </div>
           <p className="text-xs text-gray-400 mt-0.5">
             {farmSessions.length} group{farmSessions.length !== 1 ? 's' : ''} grazing today
           </p>
@@ -283,6 +294,7 @@ function FarmSection({ farmName, sessions, groups, staff, movements, fieldUpdate
 export default function LiveStatusPage() {
   const { sessions, groups, fieldUpdates, loading } = useSessionStore()
   const location = useLocation()
+  const navigate = useNavigate()
   useTodaySessions()
 
   const [staff, setStaff]           = useState([])
@@ -360,6 +372,7 @@ export default function LiveStatusPage() {
             staff={staff}
             fieldUpdates={fieldUpdates}
             isHighlit={highlightId === slugify(farmName)}
+            onViewFarm={() => navigate(`/farm/${slugify(farmName)}`)}
           />
         ))}
       </div>

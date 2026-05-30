@@ -41,6 +41,17 @@ export async function getSessionsForDateRange(startDate, endDate) {
   return res.data.records
 }
 
+export async function getSessionsByGrazingGround(grazingGround) {
+  const res = await client.get(`/${TABLE}`, {
+    params: {
+      filterByFormula: `{Grazing Ground} = "${grazingGround}"`,
+      pageSize: 100,
+      sort: [{ field: 'Date', direction: 'desc' }],
+    },
+  })
+  return res.data.records
+}
+
 export async function getSessionsForHerdsman(herdsmanId) {
   const res = await client.get(`/${TABLE}`, {
     params: {
