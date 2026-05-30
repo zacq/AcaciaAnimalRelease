@@ -126,32 +126,32 @@ export default function NavBar() {
                   </span>
                   {hasGroups && (
                     <svg viewBox="0 0 16 16" fill="currentColor"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 delay-75 w-3 h-3 ml-auto flex-shrink-0">
+                      className="opacity-0 group-hover:opacity-100 group-hover:rotate-180 transition-all duration-200 delay-75 w-3 h-3 ml-auto flex-shrink-0">
                       <path d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                     </svg>
                   )}
                 </NavLink>
 
-                {/* Group sub-items — shown when Overview is active + sidebar expanded */}
+                {/* Sub-items — visible on sidebar hover, no click required */}
                 {hasGroups && (
-                  <div className={`transition-all duration-150 overflow-hidden ${
-                    isActive ? 'max-h-96' : 'max-h-0'
-                  } opacity-0 group-hover:opacity-100 delay-75`}>
+                  <div className="overflow-hidden max-h-0 group-hover:max-h-[400px] opacity-0 group-hover:opacity-100 transition-all duration-200 ease-in-out delay-75">
                     <div className="ml-9 border-l border-white/15 pl-3 py-1 space-y-0.5">
-                      {link.subItems.map((groupName) => {
-                        const slug      = slugify(groupName)
-                        const isGroupActive = location.hash === `#${slug}`
+                      {link.subItems.map((itemName) => {
+                        const slug          = slugify(itemName)
+                        const isItemActive  = link.subItemBasePath
+                          ? location.pathname === `${link.subItemBasePath}/${slug}`
+                          : location.hash === `#${slug}`
                         return (
                           <button
-                            key={groupName}
-                            onClick={() => goToSubItem(link, groupName)}
+                            key={itemName}
+                            onClick={() => goToSubItem(link, itemName)}
                             className={`w-full text-left py-1.5 px-2 text-xs whitespace-nowrap rounded transition-colors ${
-                              isGroupActive
-                                ? 'text-amber font-semibold'
-                                : 'text-white/50 hover:text-white/85'
+                              isItemActive
+                                ? 'text-amber font-semibold bg-white/10'
+                                : 'text-white/55 hover:text-white hover:bg-white/8'
                             }`}
                           >
-                            {groupName}
+                            {itemName}
                           </button>
                         )
                       })}
